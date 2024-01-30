@@ -3,6 +3,7 @@ import "../styles/products.css";
 import gokuPng from "../../public/goku.png";
 import { useFetch } from "../hooks/UseFetch";
 import { useEffect, useState } from "react";
+import ReactPaginate from "react-paginate";
 
 export const Products = () => {
 
@@ -23,6 +24,10 @@ export const Products = () => {
             setProducts(data);
         }
     }, [data]);
+
+    const handlePageClick = (e: any) => {
+        console.log(e);
+    };
 
     return (
         <div className="products-container">
@@ -56,6 +61,26 @@ export const Products = () => {
                                 ))
                         }
                     </div>
+                    <>
+                        <ReactPaginate
+                            breakLabel="..."
+                            nextLabel="next >"
+                            onPageChange={handlePageClick}
+                            pageRangeDisplayed={5}
+                            pageCount={8}
+                            previousLabel="< previous"
+                            renderOnZeroPageCount={null}
+                            marginPagesDisplayed={2}
+                            containerClassName="pagination justify-content-center"
+                            pageClassName="page-item"
+                            pageLinkClassName="page-link"
+                            previousClassName="page-item"
+                            previousLinkClassName="page-link"
+                            nextClassName="page-item"
+                            nextLinkClassName="page-link"
+                            activeClassName="active"
+                        />
+                    </>
                 </div>
             </div>
         </div>

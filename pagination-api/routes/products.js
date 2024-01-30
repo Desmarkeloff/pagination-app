@@ -2,7 +2,7 @@ import express from "express";
 
 import { check } from "express-validator";
 import { validarCampos } from "../helpers/validarCampos.js";
-import { createProduct, deleteProducts, getProducts, updateProducts } from "../controllers/products.js";
+import { createProduct, deleteProducts, getProducts as getAllProducts, getLimitedProducts, updateProducts } from "../controllers/products.js";
 
 const router = express.Router();
 
@@ -27,10 +27,14 @@ router.post('/',
 );
 
 //READ
-router.get('/', getProducts);
+router.get('/', getAllProducts);
+router.get('/paginatedProducts', getLimitedProducts)
 //UPDATE
 router.put('/:id', updateProducts);
 //DELETE
 router.delete('/:id', deleteProducts);
+
+
+
 
 export default router;
