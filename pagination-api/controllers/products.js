@@ -42,33 +42,31 @@ export const getLimitedProducts = async (req, res) => {
 
     try {
         const products = await Product.find();
-        const page = parseInt(req.query.page);
-        const limit = parseInt(req.query.limit);
-
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 5;
 
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
 
+        const results = {
+            pagination: {
+                totalProducts: products.length,
+                pageCount: Math.ceil(products.length / limit),
+                next: endIndex < products.length ? { page: page + 1, limit } : null,
+                prev: startIndex > 0 ? { page: page - 1, limit } : null
+            },
+            data: products.slice(startIndex, endIndex)
+        };
 
-        const results = {};
-        results.totalUser = products.length;
-        results.pageCount = Math.ceil(products.length / limit);
-        if (endIndex < products.length) {
-            results.next = {
-                page: page + 1,
-                limit: limit
-            };
-
-        }
         if (startIndex > 0) {
             results.prev = {
                 page: page - 1,
                 limit: limit
             };
         }
-        results.resultUsers = products.slice(startIndex, endIndex);
+
         res.json(results);
     } catch (error) {
-        res.status(400).json(error);
+        res.status(500).json(error);
     }
 };

@@ -1,9 +1,8 @@
-import { TextField } from "@mui/material";
+import { useEffect, useState } from "react";
+import { useFetch } from "../hooks/UseFetch";
 import "../styles/products.css";
 import gokuPng from "../../public/goku.png";
-import { useFetch } from "../hooks/UseFetch";
-import { useEffect, useState } from "react";
-import ReactPaginate from "react-paginate";
+import { Button, TextField } from "@mui/material";
 
 export const Products = () => {
 
@@ -14,7 +13,7 @@ export const Products = () => {
         price: number;
     }
 
-    const queryUrl: string = "http://localhost:3011/api/products";
+    const queryUrl: string = "http://localhost:3011/api/products/paginatedProducts";
     const { data } = useFetch(queryUrl);
 
     const [products, setProducts] = useState<Product[]>([]);
@@ -25,8 +24,17 @@ export const Products = () => {
         }
     }, [data]);
 
-    const handlePageClick = (e: any) => {
-        console.log(e);
+    const [currentPage, setCurrentPage] = useState(1);
+    const productsPerPage = 5;
+
+    const indexOfLastProduct = currentPage * productsPerPage;
+    const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+    const currentProducts = Array.isArray(products) ? products.slice(indexOfFirstProduct, indexOfLastProduct) : [];
+    const totalPageCount = Array.isArray(products) ? Math.ceil(products.length / productsPerPage) : 0;
+
+
+    const handlePageClick = (newPage: number) => {
+        setCurrentPage(newPage);
     };
 
     return (
@@ -46,12 +54,10 @@ export const Products = () => {
                 <div className="products-section-container">
                     <div className="products-section-wrapper">
                         {
-                            !products
-                                ? <h1>Loading perringui</h1>
-                                :
-                                products.map((product) => (
+                            currentProducts.length === 0
+                                ? <h1>Loading...</h1>
+                                : currentProducts.map((product) => (
                                     <div key={product._id} className="product">
-                                        {/* Assuming you have an image URL in your product data */}
                                         <img className="product-image" src={gokuPng} alt="" />
                                         <div className="product-info">
                                             <span className="product-title">{product.title}</span>
@@ -61,26 +67,29 @@ export const Products = () => {
                                 ))
                         }
                     </div>
-                    <>
-                        <ReactPaginate
-                            breakLabel="..."
-                            nextLabel="next >"
-                            onPageChange={handlePageClick}
-                            pageRangeDisplayed={5}
-                            pageCount={8}
-                            previousLabel="< previous"
-                            renderOnZeroPageCount={null}
-                            marginPagesDisplayed={2}
-                            containerClassName="pagination justify-content-center"
-                            pageClassName="page-item"
-                            pageLinkClassName="page-link"
-                            previousClassName="page-item"
-                            previousLinkClassName="page-link"
-                            nextClassName="page-item"
-                            nextLinkClassName="page-link"
-                            activeClassName="active"
-                        />
-                    </>
+                </div>
+                <div className="pagination">
+                    <Button
+                        disabled={currentPage === 1}
+                        onClick={() => handlePageClick(currentPage - 1)}
+                    >
+                        Prev
+                    </Button>
+                    {Array.from({ length: totalPageCount }, (_, index) => (
+                        <Button
+                            key={index + 1}
+                            onClick={() => handlePageClick(index + 1)}
+                            variant={currentPage === index + 1 ? "contained" : "outlined"}
+                        >
+                            {index + 1}
+                        </Button>
+                    ))}
+                    <Button
+                        disabled={currentPage === totalPageCount}
+                        onClick={() => handlePageClick(currentPage + 1)}
+                    >
+                        Next
+                    </Button>
                 </div>
             </div>
         </div>
