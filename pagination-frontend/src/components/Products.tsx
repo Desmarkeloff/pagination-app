@@ -13,6 +13,8 @@ export const Products = () => {
         price: number;
     }
 
+    const [query, setQuery] = useState<string>("");
+
     const queryUrl: string = "http://localhost:3011/api/products/paginatedProducts";
     const { data } = useFetch(queryUrl);
 
@@ -66,6 +68,7 @@ export const Products = () => {
                                     </div>
                                 ))
                         }
+
                     </div>
                 </div>
                 <div className="pagination">
@@ -95,3 +98,4 @@ export const Products = () => {
         </div>
     );
 };
+
