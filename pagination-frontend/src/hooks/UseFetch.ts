@@ -10,7 +10,24 @@ export const useFetch = (url: string) => {
         price: number;
     }
 
-    const [data, setData] = useState<Product[]>();
+    interface Pagination {
+        totalProducts: number;
+        pageCount: number;
+        next: {
+            page: number;
+            limit: number;
+        } | null;
+        prev: {
+            page: number;
+            limit: number;
+        } | null;
+    }
+
+    interface ApiResponse {
+        data: Product[];
+        pagination: Pagination;
+    }
+    const [data, setData] = useState<ApiResponse | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
 
@@ -21,6 +38,7 @@ export const useFetch = (url: string) => {
                 const res = await axios.get(url);
                 setData(res.data);
             } catch (err: any) {
+                console.log(err.response.data);
                 setError(err);
             }
             setLoading(false);

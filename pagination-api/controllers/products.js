@@ -43,7 +43,10 @@ export const getLimitedProducts = async (req, res) => {
     try {
         const products = await Product.find();
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 5;
+        const limit = parseInt(req.query.limit);
+        if (!limit) {
+            return res.status(400).json({ ok: false, msg: "No hay límite en la url" });
+        }
 
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;

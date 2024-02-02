@@ -13,27 +13,42 @@ export const Products = () => {
         price: number;
     }
 
-    const [query, setQuery] = useState<string>("");
+    interface ApiResponse {
+        data: Product[];
+        pagination: {
+            totalProducts: number;
+            pageCount: number;
+            next: {
+                page: number;
+                limit: number;
+            } | null;
+            prev: {
+                page: number;
+                limit: number;
+            } | null;
+        };
+    }
 
-    const queryUrl: string = "http://localhost:3011/api/products/paginatedProducts";
+    // const [query, setQuery] = useState<string>("");
+
+    const productsPerPage: number = 5;
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const queryUrl: string = `http://localhost:3011/api/products/paginatedProducts?limit=${productsPerPage}&page=${currentPage}`;
+
+    const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
+    const [products, setProducts] = useState<Product[] | null>();
+
     const { data } = useFetch(queryUrl);
-
-    const [products, setProducts] = useState<Product[]>([]);
 
     useEffect(() => {
         if (data) {
-            setProducts(data);
+            setApiResponse(data);
+            setProducts(data.data);
         }
     }, [data]);
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const productsPerPage = 5;
-
-    const indexOfLastProduct = currentPage * productsPerPage;
-    const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-    const currentProducts = Array.isArray(products) ? products.slice(indexOfFirstProduct, indexOfLastProduct) : [];
-    const totalPageCount = Array.isArray(products) ? Math.ceil(products.length / productsPerPage) : 0;
-
+    console.log(apiResponse);
+    const totalPageCount: number | undefined = apiResponse?.pagination.pageCount;
 
     const handlePageClick = (newPage: number) => {
         setCurrentPage(newPage);
@@ -56,9 +71,9 @@ export const Products = () => {
                 <div className="products-section-container">
                     <div className="products-section-wrapper">
                         {
-                            currentProducts.length === 0
+                            !products
                                 ? <h1>Loading...</h1>
-                                : currentProducts.map((product) => (
+                                : products.map((product) => (
                                     <div key={product._id} className="product">
                                         <img className="product-image" src={gokuPng} alt="" />
                                         <div className="product-info">
@@ -78,17 +93,21 @@ export const Products = () => {
                     >
                         Prev
                     </Button>
-                    {Array.from({ length: totalPageCount }, (_, index) => (
-                        <Button
-                            key={index + 1}
-                            onClick={() => handlePageClick(index + 1)}
-                            variant={currentPage === index + 1 ? "contained" : "outlined"}
-                        >
-                            {index + 1}
-                        </Button>
-                    ))}
+                    {
+                        !totalPageCount
+                            ? "Loading..."
+                            :
+                            Array.from({ length: totalPageCount }, (_, index) => (
+                                <Button
+                                    key={index + 1}
+                                    onClick={() => handlePageClick(index + 1)}
+                                    variant={currentPage === index + 1 ? "contained" : "outlined"}
+                                >
+                                    {index + 1}
+                                </Button>
+                            ))}
                     <Button
-                        disabled={currentPage === totalPageCount}
+                        disabled={currentPage === apiResponse?.pagination.pageCount}
                         onClick={() => handlePageClick(currentPage + 1)}
                     >
                         Next
