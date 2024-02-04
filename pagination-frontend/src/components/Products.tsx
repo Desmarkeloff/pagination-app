@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useFetch } from "../hooks/UseFetch";
 import "../styles/products.css";
 import gokuPng from "../../public/goku.png";
 import { Button, TextField } from "@mui/material";
+import { Navbar } from "./Navbar";
+import { useNavigate } from "react-router-dom";
+import { ProductContext } from "../contexts/ProductContext";
 
 export const Products = () => {
 
@@ -47,74 +50,85 @@ export const Products = () => {
         }
     }, [data]);
 
-    console.log(apiResponse);
     const totalPageCount: number | undefined = apiResponse?.pagination.pageCount;
 
     const handlePageClick = (newPage: number) => {
         setCurrentPage(newPage);
     };
 
-    return (
-        <div className="products-container">
-            <div className="products-wrapper">
-                <TextField
-                    style={{
-                        "margin": "25px 0px 0px 0px",
-                    }}
-                    className="input-search"
-                    id="outlined-basic"
-                    label="Buscar productos"
-                    variant="outlined"
-                    name="query"
-                // value=""
-                />
-                <div className="products-section-container">
-                    <div className="products-section-wrapper">
-                        {
-                            !products
-                                ? <h1>Loading...</h1>
-                                : products.map((product) => (
-                                    <div key={product._id} className="product">
-                                        <img className="product-image" src={gokuPng} alt="" />
-                                        <div className="product-info">
-                                            <span className="product-title">{product.title}</span>
-                                            <span className="product-price">${product.price}</span>
-                                        </div>
-                                    </div>
-                                ))
-                        }
+    const { product, setProduct } = useContext(ProductContext);
+    const navigate = useNavigate();
 
+    const handleClick = (product: Product) => {
+        setProduct(product);
+        console.log(product);
+        navigate('/product');
+    };
+
+    return (
+        <>
+            <Navbar />
+            <div className="products-container">
+                <div className="products-wrapper">
+                    <TextField
+                        style={{
+                            "margin": "25px 0px 0px 0px",
+                        }}
+                        className="input-search"
+                        id="outlined-basic"
+                        label="Buscar productos"
+                        variant="outlined"
+                        name="query"
+                    // value=""
+                    />
+                    <div className="products-section-container">
+                        <div className="products-section-wrapper">
+                            {
+                                !products
+                                    ? <h1>Loading...</h1>
+                                    : products.map((product) => (
+                                        <div key={product._id} className="product" onClick={(product) => handleClick(product)}>
+                                            <img className="product-image" src={gokuPng} alt="" />
+                                            <div className="product-info">
+                                                <span className="product-title">{product.title}</span>
+                                                <span className="product-price">${product.price}</span>
+                                            </div>
+                                        </div>
+                                    ))
+                            }
+
+                        </div>
+                    </div>
+                    <div className="pagination">
+                        <Button
+                            disabled={currentPage === 1}
+                            onClick={() => handlePageClick(currentPage - 1)}
+                        >
+                            Prev
+                        </Button>
+                        {
+                            !totalPageCount
+                                ? "Loading..."
+                                :
+                                Array.from({ length: totalPageCount }, (_, index) => (
+                                    <Button
+                                        key={index + 1}
+                                        onClick={() => handlePageClick(index + 1)}
+                                        variant={currentPage === index + 1 ? "contained" : "outlined"}
+                                    >
+                                        {index + 1}
+                                    </Button>
+                                ))}
+                        <Button
+                            disabled={currentPage === apiResponse?.pagination.pageCount}
+                            onClick={() => handlePageClick(currentPage + 1)}
+                        >
+                            Next
+                        </Button>
                     </div>
                 </div>
-                <div className="pagination">
-                    <Button
-                        disabled={currentPage === 1}
-                        onClick={() => handlePageClick(currentPage - 1)}
-                    >
-                        Prev
-                    </Button>
-                    {
-                        !totalPageCount
-                            ? "Loading..."
-                            :
-                            Array.from({ length: totalPageCount }, (_, index) => (
-                                <Button
-                                    key={index + 1}
-                                    onClick={() => handlePageClick(index + 1)}
-                                    variant={currentPage === index + 1 ? "contained" : "outlined"}
-                                >
-                                    {index + 1}
-                                </Button>
-                            ))}
-                    <Button
-                        disabled={currentPage === apiResponse?.pagination.pageCount}
-                        onClick={() => handlePageClick(currentPage + 1)}
-                    >
-                        Next
-                    </Button>
-                </div>
             </div>
-        </div>
+        </>
     );
 };
 
