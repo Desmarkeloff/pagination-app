@@ -59,9 +59,9 @@ export const Products = () => {
     const { product, setProduct } = useContext(ProductContext);
     const navigate = useNavigate();
 
+    console.log(product);
     const handleClick = (product: Product) => {
         setProduct(product);
-        console.log(product);
         navigate('/product');
     };
 
@@ -87,7 +87,7 @@ export const Products = () => {
                                 !products
                                     ? <h1>Loading...</h1>
                                     : products.map((product) => (
-                                        <div key={product._id} className="product" onClick={(product) => handleClick(product)}>
+                                        <div key={product._id} className="product" onClick={() => handleClick(product)}>
                                             <img className="product-image" src={gokuPng} alt="" />
                                             <div className="product-info">
                                                 <span className="product-title">{product.title}</span>

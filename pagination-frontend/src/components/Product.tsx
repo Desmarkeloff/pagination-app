@@ -21,7 +21,7 @@ export const Product = () => {
                     <div className="product-data-container">
                         <div className="product-title">{product?.title}</div>
                         <div className="product-price">${product?.price}</div>
-                        <div className="product-description">{product?.desc}</div>
+                        <div className="product-description">{product?.description}</div>
                     </div>
                 </div>
             </div>
